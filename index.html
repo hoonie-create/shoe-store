@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - LuxeStep</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden; 
+        }
+        /* Menyembunyikan ikon mata bawaan browser Edge / IE agar tidak bertumpuk ganda */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+    <div class="flex h-screen w-full overflow-hidden">
+        
+        <div class="w-full md:w-1/2 flex flex-col justify-between p-12 lg:p-20">
+            
+            <div class="flex items-center gap-2">
+                <img src="{{ asset('gambar/logo.png') }}" class="w-10 h-10 object-contain" alt="LuxeStep Logo">
+                <span class="font-extrabold italic text-2xl tracking-tighter uppercase text-black">LuxeStep</span>
+            </div>
+
+            <div class="max-w-md w-full mx-auto">
+                <div class="mb-10 text-center md:text-left">
+                    <h1 class="text-5xl font-extrabold tracking-tighter text-gray-900 mb-3 leading-tight">Welcome Back</h1>
+                    <p class="text-gray-400 font-medium italic">Welcome back! Please enter your details.</p>
+                </div>
+
+                {{-- Alert Pesan Galat Kredensial Umum (Jika akun benar-benar tidak ditemukan) --}}
+                @if(session('error'))
+                    <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-6 text-xs font-bold uppercase tracking-widest border border-red-100">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                {{-- FORM LOGIN UTAMA --}}
+                <form action="{{ url('/login') }}" method="POST" class="space-y-6">
+                    @csrf
+                    
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Email</label>
+                        <div class="relative">
+                            <i class="far fa-user absolute left-5 top-1/2 -translate-y-1/2 text-gray-300"></i>
+                            <input type="email" name="email" value="{{ old('email') }}" required
+                                class="w-full bg-[#f9f9f9] border border-transparent rounded-2xl py-5 pl-14 pr-6 outline-none focus:ring-2 focus:ring-black transition-all font-bold text-sm text-black @error('email') border-red-500 bg-red-50/30 focus:ring-red-500 @enderror"
+                                placeholder="Masukkan Email Anda">
+                        </div>
+                        @error('email')
+                            <p class="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1 mt-1">
+                                <i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Password</label>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-gray-300"></i>
+                            
+                            {{-- FIX KUNCI: Class border diatur dinamis. Jika ada error password, border merah langsung mengunci komponen ini --}}
+                            <input type="password" name="password" id="password" required
+                                class="w-full bg-[#f9f9f9] border rounded-2xl py-5 pl-14 pr-14 outline-none transition-all font-bold text-sm text-black focus:ring-2 focus:ring-black @error('password') border-red-500 bg-red-50/30 focus:ring-red-500 @else border-transparent @enderror"
+                                placeholder="Masukkan Password Anda">
+                            
+                            {{-- Tombol interaktif pemicu lihat kata sandi --}}
+                            <button type="button" id="togglePassword" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black cursor-pointer transition focus:outline-none z-10">
+                                <i class="far fa-eye-slash text-base" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                        
+                        {{-- INTERFASI PERINGATAN TEKS MERAH: Otomatis muncul tepat di bawah kotak yang salah --}}
+                        @error('password')
+                            <p class="text-red-500 text-[10px] font-black uppercase tracking-wider ml-1 mt-1">
+                                <i class="fas fa-exclamation-circle mr-1"></i> Password yang Anda masukkan tidak sesuai!
+                            </p>
+                        @enderror
+                    </div>
+
+                    <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" name="remember" class="w-4 h-4 rounded border-gray-200 accent-black">
+                            <span class="text-gray-400 group-hover:text-black transition">Remember me</span>
+                        </label>
+                        <a href="#" class="text-gray-400 hover:text-black transition">Forget Password?</a>
+                    </div>
+
+                    <button type="submit" 
+                        class="w-full bg-black text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-gray-800 transition-all shadow-2xl shadow-black/20 mt-4">
+                        Login
+                    </button>
+                </form>
+
+                {{-- Teks Pendaftaran Terisolasi Luar Form --}}
+                <div class="text-center mt-10">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                        Belum punya akun? 
+                        <a href="{{ route('register') }}" class="text-black border-b-2 border-black pb-1 ml-1 hover:text-gray-600 hover:border-gray-600 transition inline-block">
+                            Daftar sekarang
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <div></div>
+        </div>
+
+        <div class="hidden md:block w-1/2 h-full relative overflow-hidden">
+            <img src="{{ asset('gambar/image2.jpg') }}" 
+                 class="absolute inset-0 w-full h-full object-cover" 
+                 alt="New Balance Heritage">
+            
+            <div class="absolute top-12 right-12 text-right">
+                <h2 class="text-white text-4xl font-black italic tracking-tighter uppercase leading-none">New Balance<br><span class="text-sm font-light tracking-[0.5em] opacity-60">Collection 2000</span></h2>
+            </div>
+
+            <div class="absolute inset-0 bg-gradient-to-l from-transparent to-black/10"></div>
+        </div>
+
+    </div>
+
+    {{-- SCRIPTS JAVASCRIPT LOGIKA MATA PASSWORD --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const passwordInput = document.getElementById('password');
+            const togglePasswordButton = document.getElementById('togglePassword');
+            const eyeIcon = document.getElementById('eyeIcon');
+
+            togglePasswordButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                if (type === 'text') {
+                    eyeIcon.classList.remove('fa-eye-slash');
+                    eyeIcon.classList.add('fa-eye');
+                } else {
+                    eyeIcon.classList.remove('fa-eye');
+                    eyeIcon.classList.add('fa-eye-slash');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
